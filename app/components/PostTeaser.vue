@@ -8,9 +8,9 @@
           <img :src="post.image" :alt="post.title" />
         </div>
 
-        <nuxt-link :to="url">
+        <NuxtLink :to="url">
           <h2 class="title tw-mb-6 header-link">{{ post.title }}</h2>
-        </nuxt-link>
+        </NuxtLink>
 
         <div class="content" v-html="post.excerptHtml" />
       </div>
@@ -18,24 +18,20 @@
   </section>
 </template>
 
-<script lang="ts">
-import { Component, Prop, Vue } from 'nuxt-property-decorator'
-
+<script setup lang="ts">
+import { computed } from 'vue'
 import PostHeader from './PostHeader.vue'
 
-@Component({
-  components: {
-    PostHeader
+const props = defineProps<{
+  post: {
+    title: string
+    path: string
+    image?: string
+    excerptHtml: string
   }
-})
-export default class PostTeaser extends Vue {
-  @Prop({ required: true }) post!: any
+}>()
 
-  get url() {
-    const h = this.post
-    return `/post/${h.path}`
-  }
-}
+const url = computed(() => `/post/${props.post.path}`)
 </script>
 
 <style scoped>
@@ -55,10 +51,7 @@ export default class PostTeaser extends Vue {
 
 .image-teaser {
   width: calc(100% + 3rem);
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  margin-left: -1.5rem;
-  margin-right: -1.5rem;
+  margin: 1rem -1.5rem;
 }
 
 .image-teaser img {

@@ -143,7 +143,7 @@
 <script lang="ts">
 import { Component, Vue } from 'nuxt-property-decorator'
 
-import { normalizeArray } from '@/assets/util'
+import { normalizeArray } from '~/app/utils/util'
 import PageSocial from '@/components/PageSocial.vue'
 
 import { ISidebar, ITabs } from '../types/theme'
