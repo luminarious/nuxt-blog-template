@@ -1,5 +1,5 @@
-import { CacheMedia } from '@patarapolw/make-html-functions'
-import { MakeHtml } from '@patarapolw/make-html-functions/lib/frontend'
+import { CacheMedia } from './make-html-functions/cache.js'
+import { MakeHtml } from './make-html-functions/frontend.js'
 import dayjs from 'dayjs'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
@@ -7,20 +7,8 @@ import yaml from 'js-yaml'
 import lunr from 'lunr'
 import * as z from 'zod'
 
-import { clean } from './clean'
-import { buildPath, dstMediaPath, srcMediaPath, srcPostPath } from './dir'
-
-export interface IPost {
-  slug: string
-  path: string
-  title: string
-  image?: string
-  tag?: string[]
-  date?: string
-  excerpt: string
-  excerptHtml: string
-  contentHtml: string
-}
+import { clean } from './clean.js'
+import { buildPath, dstMediaPath, srcMediaPath, srcPostPath } from './dir.js'
 
 export async function buildIndexes() {
   clean()
@@ -28,20 +16,20 @@ export async function buildIndexes() {
   const files = await fg('**/*.md', {
     cwd: srcPostPath()
   })
-  const rawJson: IPost[] = []
+  const rawJson = []
 
   await Promise.all(
     files.map(async (f) => {
       const slug = f.replace(/^.+\//, '').replace(/\.mdx?$/, '')
-      let header: Record<string, any> = {}
+      let header = {}
       let markdown = fs.readFileSync(srcPostPath(f), 'utf8')
 
-      if (markdown.startsWith('---\n')) {
-        const [h, c = ''] = markdown.substr(4).split(/---\n(.*)$/s)
-        header = yaml.safeLoad(h, {
-          schema: yaml.JSON_SCHEMA
-        })
-        markdown = c
+      if (markdown.startsWith('---')) {
+        const match = markdown.match(/^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/)
+        if (match) {
+          header = yaml.load(match[1].trim(), { schema: yaml.JSON_SCHEMA }) || {}
+          markdown = match[2].trim()
+        }
       }
 
       const makeHtml = new MakeHtml(slug)
@@ -70,7 +58,7 @@ export async function buildIndexes() {
         /<!-- excerpt(?:_separator)? -->/
       )[0]
 
-      const p: IPost = {
+      const p = {
         path: f.replace(/\.mdx?$/, ''),
         slug,
         title,
@@ -98,7 +86,7 @@ export async function buildIndexes() {
   fs.writeFileSync(
     buildPath('idx.json'),
     JSON.stringify(
-      lunr(function() {
+      lunr(function () {
         this.ref('path')
         this.field('slug', { boost: 5 })
         this.field('title', { boost: 5 })
@@ -115,26 +103,24 @@ export async function buildIndexes() {
     buildPath('tag.json'),
     JSON.stringify(
       rawJson.reduce((prev, { tag = [] }) => {
-        const ts: string[] = tag
+        const ts = tag
 
         ts.map((t) => {
           prev[t] = (prev[t] || 0) + 1
         })
 
         return prev
-      }, {} as Record<string, number>)
+      }, {})
     )
   )
-  ;(
-    await fg('**/*.*', {
-      cwd: srcMediaPath()
+    ; (
+      await fg('**/*.*', {
+        cwd: srcMediaPath()
+      })
+    ).map((f) => {
+      fs.ensureFileSync(dstMediaPath(f))
+      fs.copyFileSync(srcMediaPath(f), dstMediaPath(f))
     })
-  ).map((f) => {
-    fs.ensureFileSync(dstMediaPath(f))
-    fs.copyFileSync(srcMediaPath(f), dstMediaPath(f))
-  })
 }
 
-if (require.main === module) {
-  buildIndexes()
-}
+buildIndexes()
