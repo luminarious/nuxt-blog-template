@@ -1,84 +1,43 @@
 <template>
   <section>
-    <nav
-      class="navbar has-shadow is-fixed-top"
-      role="navigation"
-      aria-label="main navigation"
-    >
+    <nav class="navbar has-shadow is-fixed-top" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
-        <nuxt-link to="/" class="navbar-item">
+        <NuxtLink to="/" class="navbar-item">
           <h1 class="tw-font-bold">{{ banner }}</h1>
-        </nuxt-link>
+        </NuxtLink>
 
         <div class="tw-flex-grow" />
 
-        <PageSocial v-if="hasSocial && $mq === 'tablet'" />
+        <PageSocial v-if="hasSocial && mq === 'tablet'" />
 
-        <a
-          role="button"
-          class="navbar-burger burger"
-          :class="{ 'is-active': isNavExpanded }"
-          aria-label="menu"
-          :aria-expanded="isNavExpanded"
-          tabIndex="0"
-          data-target="navbarMain"
-          @click="isNavExpanded = !isNavExpanded"
-          @keypress="isNavExpanded = !isNavExpanded"
-        >
+        <a role="button" class="navbar-burger burger" :class="{ 'is-active': isNavExpanded }" aria-label="menu"
+          :aria-expanded="isNavExpanded" tabindex="0" data-target="navbarMain" @click="isNavExpanded = !isNavExpanded"
+          @keypress="isNavExpanded = !isNavExpanded">
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
         </a>
       </div>
 
-      <div
-        id="navbarMain"
-        class="navbar-menu"
-        :class="{ 'is-active': isNavExpanded }"
-      >
+      <div id="navbarMain" class="navbar-menu" :class="{ 'is-active': isNavExpanded }">
         <div class="navbar-start">
-          <component
-            :is="t.to ? 'nuxt-link' : 'a'"
-            v-for="t in tabs"
-            :key="t.name"
-            class="navbar-item"
-            :to="t.to"
-            :target="t.href ? '_blank' : ''"
-            :href="t.href"
-            rel="noopener nofollow noreferrer"
-          >
+          <component :is="t.to ? 'NuxtLink' : 'a'" v-for="t in tabs" :key="t.name" class="navbar-item" :to="t.to"
+            :target="t.href ? '_blank' : ''" :href="t.href" rel="noopener nofollow noreferrer">
             {{ t.name }}
           </component>
         </div>
 
         <div class="navbar-end">
-          <PageSocial
-            v-if="hasSocial && $mq !== 'tablet'"
-            class="mobile:tw-w-full"
-          />
+          <PageSocial v-if="hasSocial && mq !== 'tablet'" class="mobile:tw-w-full" />
 
-          <form
-            class="field has-addons tw-m-2 tw-px-2"
-            @submit.prevent="$router.push(`/blog?q=${q}`)"
-          >
+          <form class="field has-addons tw-m-2 tw-px-2" @submit.prevent="onSearch">
             <div class="control is-expanded" role="search">
-              <input
-                v-model="q"
-                class="input is-rounded"
-                type="search"
-                placeholder="Search"
-                aria-label="search"
-              />
+              <input v-model="q" class="input is-rounded" type="search" placeholder="Search" aria-label="search" />
             </div>
 
             <div class="control">
-              <button
-                class="button"
-                style="border-top-right-radius: 100%; border-bottom-right-radius: 100%"
-              >
-                <span class="icon">
-                  <FontAwesome icon="search" />
-                </span>
+              <button class="button" style="border-top-right-radius: 100%; border-bottom-right-radius: 100%">
+                <span class="icon"></span>
               </button>
             </div>
           </form>
@@ -89,50 +48,27 @@
     <article class="tw-mt-16">
       <div class="container">
         <div class="columns">
-          <main
-            class="column tw-mt-4"
-            :class="
-              sidebar
-                ? 'is-6-desktop is-offset-1-desktop'
-                : 'is-8-desktop is-offset-2-desktop'
-            "
-          >
-            <nuxt />
+          <main class="column tw-mt-4" :class="sidebar
+              ? 'is-6-desktop is-offset-1-desktop'
+              : 'is-8-desktop is-offset-2-desktop'
+            ">
+            <slot />
           </main>
 
           <aside v-if="sidebar" class="column is-4">
-            <section
-              v-if="sidebar.tagCloud && tagCloudData"
-              class="card tw-mt-4"
-            >
+            <section v-if="sidebar.tagCloud && tagCloudData" class="card tw-mt-4">
               <header class="card-header">
                 <h3 class="card-header-title">Tag Cloud</h3>
               </header>
 
-              <article
-                class="card-content tw-flex tw-flex-wrap tw-items-baseline"
-              >
-                <span
-                  v-for="t in computedTags"
-                  :key="t.name"
-                  class="tw-whitespace-no-wrap tw-mr-2"
-                >
-                  <nuxt-link :to="`/tag/${t.name}`" :class="t.class">{{
-                    t.name
-                  }}</nuxt-link>
+              <article class="card-content tw-flex tw-flex-wrap tw-items-baseline">
+                <span v-for="t in computedTags" :key="t.name" class="tw-whitespace-no-wrap tw-mr-2">
+                  <NuxtLink :to="`/tag/${t.name}`" :class="t.class">
+                    {{ t.name }}
+                  </NuxtLink>
                 </span>
               </article>
             </section>
-
-            <client-only>
-              <section v-if="sidebar.twitter" class="card tw-mt-4">
-                <Timeline
-                  :id="sidebar.twitter"
-                  source-type="profile"
-                  :options="{ height: 800 }"
-                />
-              </section>
-            </client-only>
           </aside>
         </div>
       </div>
@@ -140,128 +76,65 @@
   </section>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'nuxt-property-decorator'
-
-import { normalizeArray } from '~/app/utils/util'
+<script setup lang="ts">
 import PageSocial from '@/components/PageSocial.vue'
-
 import { ISidebar, ITabs } from '../types/theme'
 
-import 'bulma/css/bulma.min.css'
-import 'highlight.js/styles/default.css'
-import '@/assets/css/tailwind.css'
-import '@/assets/css/hljs-fix.css'
+const config = useRuntimeConfig()
+const route = useRoute()
+const router = useRouter()
 
-const rawData = JSON.parse(process.env.BlogLayout!)
+const rawData = JSON.parse(config.public.BlogLayout || '{}')
 
-@Component({
-  components: {
-    PageSocial,
-    ...(rawData.sidebar?.twitter
-      ? {
-          Timeline: async () => (await import('vue-tweet-embed')).Timeline
-        }
-      : {})
-  }
-})
-export default class BlogLayout extends Vue {
-  banner: string = rawData.banner
-  tabs: ITabs = rawData.tabs || []
-  sidebar: ISidebar | null = rawData.sidebar || null
-  tagCloudData: Record<string, number> = rawData.tagCloudData
-  hasSocial: boolean = rawData.hasSocial
+const banner = ref(rawData.banner)
+const tabs = ref<ITabs>(rawData.tabs || [])
+const sidebar = ref<ISidebar | null>(rawData.sidebar || null)
+const tagCloudData = ref<Record<string, number>>(rawData.tagCloudData || {})
+const hasSocial = ref(rawData.hasSocial)
+const q = ref('')
+const isNavExpanded = ref(false)
 
-  q = ''
-  isNavExpanded = false
-
-  get fullUrl() {
-    return process.env.baseUrl!
-  }
-
-  get computedTags() {
-    return Object.keys(this.tagCloudData)
-      .sort((a, b) => {
-        const primary = this.tagCloudData[b] - this.tagCloudData[a]
-        if (primary) {
-          return primary
-        }
-        return a.localeCompare(b)
-      })
-      .slice(0, 30)
-      .map((t) => {
-        if (
-          this.sidebar?.tagCloud?.excluded &&
-          this.sidebar.tagCloud.excluded.includes(t)
-        ) {
-          return null
-        }
-        return {
+const computedTags = computed(() =>
+  Object.keys(tagCloudData.value)
+    .sort((a, b) => tagCloudData.value[b] - tagCloudData.value[a] || a.localeCompare(b))
+    .slice(0, 30)
+    .map(t =>
+      sidebar.value?.tagCloud?.excluded?.includes(t)
+        ? null
+        : {
           name: t,
-          class: (() => {
-            const count = this.tagCloudData[t]
-            // if (count > 20) {
-            //   return 'c20'
-            // } else
-            // if (count > 10) {
-            //   return 'c10'
-            // } else
-            if (count > 5) {
-              return 'c5'
-            } else if (count > 3) {
-              return 'c3'
-            } else if (count > 1) {
-              return 'c2'
-            }
-            return 'c1'
-          })()
+          class:
+            tagCloudData.value[t] > 5
+              ? 'c5'
+              : tagCloudData.value[t] > 3
+                ? 'c3'
+                : tagCloudData.value[t] > 1
+                  ? 'c2'
+                  : 'c1'
         }
-      })
-      .filter((el) => el)
-  }
+    )
+    .filter(Boolean)
+)
 
-  head() {
-    const url = this.fullUrl + this.$route.path
+const fullUrl = computed(() => config.public.baseUrl + route.path)
 
-    return {
-      link: [
-        {
-          rel: 'canonical',
-          href: url
-        }
-      ],
-      meta: [
-        {
-          hid: 'og:url',
-          property: 'og:url',
-          content: this.fullUrl
-        }
-      ]
-    }
-  }
+useHead({
+  link: [{ rel: 'canonical', href: fullUrl }]
+})
 
-  mounted() {
-    this.q = normalizeArray(this.$route.query.q) || ''
-  }
+useSeoMeta({
+  ogUrl: fullUrl
+})
 
-  onSearch() {
-    this.$router.push({
-      path: '/blog',
-      query: { q: this.q }
-    })
-  }
+const onSearch = () => {
+  router.push({ path: '/blog', query: { q: q.value } })
 }
+
+// Initialize search query from URL
+q.value = normalizeArray(route.query.q) || ''
 </script>
 
 <style scoped>
-.c20 {
-  font-size: 6rem;
-}
-
-.c10 {
-  font-size: 3rem;
-}
-
 .c5 {
   font-size: 1.8rem;
 }

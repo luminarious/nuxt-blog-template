@@ -2,16 +2,12 @@
   <section class="tw-my-4 tw-mx-2">
     <nav class="pagination is-rounded" role="navigation" aria-label="pagination">
       <NuxtLink v-if="page > 1" :to="setPageUrl(page - 1)" class="pagination-previous">
-        <span class="icon">
-          <FontAwesome icon="caret-left" />
-        </span>
+        <span class="icon"></span>
         <span class="tw-sr-only">Previous</span>
       </NuxtLink>
 
       <NuxtLink v-if="page < total - 1" :to="setPageUrl(page + 1)" class="pagination-next">
-        <span class="icon">
-          <FontAwesome icon="caret-right" />
-        </span>
+        <span class="icon"></span>
         <span class="tw-sr-only">Next</span>
       </NuxtLink>
 

@@ -33,8 +33,6 @@ import { useRoute } from 'vue-router'
 import { useRuntimeConfig } from '#imports'
 import PostHeader from './PostHeader.vue'
 
-import '~/app/utils/remark42'
-
 const props = defineProps<{
   post: {
     title: string

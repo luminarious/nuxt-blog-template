@@ -2,9 +2,7 @@
   <div class="tw-inline-flex tw-justify-center tw-self-center">
     <a v-for="(username, platform) in social" :key="platform" class="navbar-item"
       :href="getSocialUrl(platform, username)" target="_blank" rel="noopener nofollow noreferrer">
-      <span class="icon">
-        <FontAwesome :icon="['fab', platform]" />
-      </span>
+      <span class="icon"></span>
     </a>
   </div>
 </template>

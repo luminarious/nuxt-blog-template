@@ -16,8 +16,6 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { computed } from 'vue'
-import { useRuntimeConfig } from '#imports'
-import { getGravatarUrl } from '../app/assets/gravatar'
 
 const props = defineProps<{
   post: {

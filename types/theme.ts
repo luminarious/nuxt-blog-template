@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
-import { safeLoad } from 'js-yaml'
+import { load } from 'js-yaml'
 import * as z from 'zod'
 
 import { CONTENT_PATH } from '../scripts/dir'
@@ -87,7 +87,7 @@ export const zTheme = () =>
 
 export const getTheme = async () => {
   return zTheme().parse(
-    safeLoad(readFileSync(join(CONTENT_PATH, 'theme.yml'), 'utf8'))
+    load(readFileSync(join(CONTENT_PATH, 'theme.yml'), 'utf8'))
   )
 }
 

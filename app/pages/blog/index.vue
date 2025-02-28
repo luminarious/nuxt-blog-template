@@ -2,26 +2,17 @@
   <PostQuery :defaults="defaults" />
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'nuxt-property-decorator'
-
+<script setup lang="ts">
 import PostQuery from '@/components/PostQuery.vue'
 
-@Component({
-  components: {
-    PostQuery
-  },
-  layout: 'blog',
-  async asyncData({ app }) {
-    const ps = await app.$axios.$get('/serverMiddleware/search')
-
-    return {
-      defaults: {
-        count: ps!.count,
-        posts: ps!.result
-      }
-    }
-  }
+definePageMeta({
+  layout: 'blog'
 })
-export default class Blog extends Vue {}
+
+const { data: defaults } = await useFetch('/api/search', {
+  transform: (ps) => ({
+    count: ps.count,
+    posts: ps.result
+  })
+})
 </script>

@@ -18,7 +18,6 @@
 <script setup lang="ts">
 import { ref, computed, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { normalizeArray } from '~/app/utils/util'
 
 import Empty from './Empty.vue'
 import Pagination from './Pagination.vue'

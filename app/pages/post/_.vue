@@ -1,114 +1,47 @@
 <template>
-  <PostFull :post="post" />
+  <PostFull v-if="post" :post="post" />
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'nuxt-property-decorator'
-
+<script setup lang="ts">
+import { useRoute, useRouter } from 'vue-router'
+import { useRuntimeConfig } from '#imports'
+import { useSeoMeta } from '#imports'
 import PostFull from '@/components/PostFull.vue'
 
-@Component({
-  components: {
-    PostFull
-  },
-  layout: 'blog',
-  async asyncData({ app, params, error }) {
-    try {
-      const {
-        title,
-        image,
-        tag,
-        excerpt,
-        contentHtml,
-        date
-      } = (await app.$axios.$get(`/serverMiddleware/post`, {
-        params: {
-          path: params.pathMatch
-        }
-      }))!
-
-      return {
-        post: {
-          title,
-          image,
-          tag,
-          excerpt,
-          contentHtml,
-          date
-        }
-      }
-    } catch (_) {
-      error({ statusCode: 404, message: 'Post not found' })
-    }
-  }
+definePageMeta({
+  layout: 'blog'
 })
-export default class PostPage extends Vue {
-  post!: {
-    title: string
-    image?: string
-    tag?: string[]
-    excerpt: string
-    contentHtml: string
-  }
 
-  head() {
-    const { title: _title, excerpt, tag, image } = this.post
-    const title = `${_title} - ${process.env.title}`
-    const description = excerpt
+const route = useRoute()
+const router = useRouter()
+const config = useRuntimeConfig()
 
-    return {
-      title,
-      meta: [
-        {
-          hid: 'description',
-          name: 'description',
-          content: description
-        },
-        ...(tag
-          ? [
-              {
-                hid: 'keywords',
-                name: 'keywords',
-                content: tag.join(',')
-              }
-            ]
-          : []),
-        {
-          hid: 'og:title',
-          property: 'og:title',
-          content: title
-        },
-        {
-          hid: 'og:description',
-          property: 'og:description',
-          content: description
-        },
-        {
-          hid: 'twitter:title',
-          property: 'twitter:title',
-          content: title
-        },
-        {
-          hid: 'twitter:description',
-          property: 'twitter:description',
-          content: description
-        },
-        ...(image
-          ? [
-              {
-                hid: 'og:image',
-                property: 'og:image',
-                content: image
-              },
-              {
-                hid: 'twitter:image',
-                property: 'twitter:image',
-                content: image
-              }
-            ]
-          : [])
-      ]
-    }
-  }
+const { data: post, error } = await useFetch('/api/post', {
+  params: { path: route.params.pathMatch },
+  transform: (data) => ({
+    title: data.title,
+    image: data.image,
+    tag: data.tag,
+    excerpt: data.excerpt,
+    contentHtml: data.contentHtml,
+    date: data.date
+  })
+})
+
+// Redirect to 404 if the post is not found
+if (error.value) {
+  router.push({ path: '/404' })
 }
+
+// SEO Meta Tags
+useSeoMeta({
+  title: () => post.value ? `${post.value.title} - ${config.public.title}` : '',
+  description: () => post.value?.excerpt || '',
+  ogTitle: () => post.value?.title,
+  ogDescription: () => post.value?.excerpt,
+  ogImage: () => post.value?.image,
+  twitterTitle: () => post.value?.title,
+  twitterDescription: () => post.value?.excerpt,
+  twitterImage: () => post.value?.image
+})
 </script>

@@ -23,11 +23,6 @@
         "./*"
       ]
     },
-    "types": [
-      "@types/node",
-      "@nuxt/types",
-      "@nuxtjs/axios",
-    ],
     "skipLibCheck": true
   },
   "exclude": [
