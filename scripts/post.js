@@ -1,7 +1,7 @@
 import rawJson from '@/build/raw.json'
 
 import { IPost } from './build'
-import { dotPropPick } from './util'
+import { dotPropPick } from './lib/util'
 
 export const getPost = ({
   path,
