@@ -2,8 +2,6 @@
   "name": "nuxt-blog-template",
   "type": "module",
   "version": "0.1.0",
-  "description": "A blog template using Nuxt.js as well as make contents as private as possible",
-  "author": "Pacharapol Withayasakpunt",
   "private": true,
   "scripts": {
     "generate-db": "node scripts/build.js",
@@ -13,7 +11,8 @@
     "clean:content": "rimraf content",
     "clean:db": "node scripts/clean.js",
     "build": "run-p 'build:**'",
-    "build:nuxt": "nuxt-ts build && nuxt-ts export"
+    "build:nuxt": "nuxt-ts build && nuxt-ts export",
+    "test": "vitest"
   },
   "dependencies": {
     "cheerio": "^1.0.0",
@@ -54,12 +53,15 @@
     "stylelint-config-recommended": "^15.0.0",
     "stylis": "^4.3.6",
     "tailwindcss": "^4.0.6",
-    "typescript": "~5.7.3"
+    "typescript": "~5.7.3",
+    "vitest": "^3.0.7"
   },
-  "config": {
-    "commitizen": {
-      "path": "emoji-cz"
-    }
-  },
-  "packageManager": "pnpm@10.2.1+sha512.398035c7bd696d0ba0b10a688ed558285329d27ea994804a52bad9167d8e3a72bcb993f9699585d3ca25779ac64949ef422757a6c31102c12ab932e5cbe5cc92"
+  "packageManager": "pnpm@10.2.1+sha512.398035c7bd696d0ba0b10a688ed558285329d27ea994804a52bad9167d8e3a72bcb993f9699585d3ca25779ac64949ef422757a6c31102c12ab932e5cbe5cc92",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "esbuild",
+      "sharp"
+    ]
+  }
 }
